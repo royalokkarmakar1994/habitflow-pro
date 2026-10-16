@@ -1730,12 +1730,31 @@
         /********************************************************************
          * 6B. GEMINI LLM & TTS INTEGRATIONS
          ********************************************************************/
-        const apiKey = "";
+        let apiKey = localStorage.getItem('habitflow_gemini_api_key') || "";
+
+function getValidApiKey() {
+    if (!apiKey) {
+        const userKey = prompt("Enter your free Gemini API Key (from aistudio.google.com) to test the live AI features. It will be saved only in your browser:");
+        if (userKey && userKey.trim()) {
+            apiKey = userKey.trim();
+            localStorage.setItem('habitflow_gemini_api_key', apiKey);
+        }
+    }
+    return apiKey;
+}
         let lastCoachAdviceText = "";
         let lastGeneratedHabits = [];
         let activeAudioObj = null;
 
         async function fetchWithRetry(url, options, maxRetries = 5) {
+    if (url.endsWith("key=")) {
+        const key = getValidApiKey();
+        if (!key) throw new Error("Missing API key");
+        url = url + key;
+    }
+    let delay = 1000;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        // ... rest of your existing code
             let delay = 1000;
             for (let attempt = 0; attempt < maxRetries; attempt++) {
                 try {
